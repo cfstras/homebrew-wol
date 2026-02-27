@@ -1,15 +1,15 @@
 class Wol < Formula
   desc "Wake On LAN functionality in a small program"
-  homepage "http://ahh.sourceforge.net/wol/"
+  homepage "https://ahh.sourceforge.net/"
   url "https://downloads.sourceforge.net/ahh/wol-0.7.1.tar.gz"
   sha256 "e0086c9b9811df2bdf763ec9016dfb1bcb7dba9fa6d7858725b0929069a12622"
   license "GPL-2.0-only"
 
-  patch :p1, :DATA
-
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
+
+  patch :p1, :DATA
 
   def install
     system "autoreconf", "-fiv"
