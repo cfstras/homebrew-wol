@@ -5,6 +5,7 @@ class Wol < Formula
       tag:      "v0.7.1",
       revision: "6a318e45d41f683e5203ad7b7b8fc3e85de184a8"
   license "GPL-2.0-only"
+  head "https://github.com/cfstras/wol.git", branch: "main"
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build

@@ -10,7 +10,10 @@ brew tap cfstras/wol
 brew install wol
 ```
 
-For local testing from a checkout (before publishing):
+If you want the latest version:
+```sh
+brew install --build-from-source -v wol --HEAD
+```
 
 ## Notes
 
