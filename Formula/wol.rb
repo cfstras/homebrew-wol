@@ -9,10 +9,13 @@ class Wol < Formula
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
+  depends_on "gettext" => :build
   depends_on "libtool" => :build
   depends_on "texinfo" => :build
 
   def install
+    ENV.prepend_path "PATH", Formula["gettext"].opt_bin
+
     system "autoreconf", "-fiv"
 
     system "./configure",
