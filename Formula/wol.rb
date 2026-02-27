@@ -2,8 +2,8 @@ class Wol < Formula
   desc "Wake On LAN functionality in a small program"
   homepage "https://github.com/cfstras/wol"
   url "https://github.com/cfstras/wol.git",
-      tag:      "v0.7.1",
-      revision: "6a318e45d41f683e5203ad7b7b8fc3e85de184a8"
+      tag:      "v0.8.0",
+      revision: "d7497b5d14542f5bce6c26c5ad88bc820afda1ef"
   license "GPL-2.0-only"
   head "https://github.com/cfstras/wol.git", branch: "main"
 
