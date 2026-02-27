@@ -21,16 +21,29 @@ class Wol < Formula
 
     # Mirror the config.h adjustments from the Arch Linux PKGBUILD.
     inreplace "config.h" do |s|
-      s.gsub!("HAVE_ETHER_HOSTTON 0", "HAVE_ETHER_HOSTTON 1") if s.include?("HAVE_ETHER_HOSTTON 0")
-      s.gsub!("HAVE_STRUCT_ETHER_ADDR 0", "HAVE_STRUCT_ETHER_ADDR 1") if s.include?("HAVE_STRUCT_ETHER_ADDR 0")
-      if s.include?("HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 0")
-        s.gsub!(
-          "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 0",
-          "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 1",
-        )
+      begin
+        s.gsub! "HAVE_ETHER_HOSTTON 0", "HAVE_ETHER_HOSTTON 1"
+      rescue Utils::InreplaceError
+        nil
       end
 
-      s.gsub!(/^#define rpl_.*\n/, "") if s.match?(/^#define rpl_/) 
+      begin
+        s.gsub! "HAVE_STRUCT_ETHER_ADDR 0", "HAVE_STRUCT_ETHER_ADDR 1"
+      rescue Utils::InreplaceError
+        nil
+      end
+
+      begin
+        s.gsub! "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 0", "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 1"
+      rescue Utils::InreplaceError
+        nil
+      end
+
+      begin
+        s.gsub!(/^#define rpl_.*\n/, "")
+      rescue Utils::InreplaceError
+        nil
+      end
     end
 
     ENV.append_to_cflags "-DSTDC_HEADERS=1"
