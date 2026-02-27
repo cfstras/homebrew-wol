@@ -10,6 +10,7 @@ class Wol < Formula
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
+  depends_on "texinfo" => :build
 
   def install
     system "autoreconf", "-fiv"
