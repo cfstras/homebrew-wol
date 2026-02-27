@@ -1,23 +1,14 @@
 class Wol < Formula
   desc "Wake On LAN functionality in a small program"
-  homepage "https://ahh.sourceforge.net/"
-  url "https://downloads.sourceforge.net/ahh/wol-0.7.1.tar.gz"
-  sha256 "e0086c9b9811df2bdf763ec9016dfb1bcb7dba9fa6d7858725b0929069a12622"
+  homepage "https://github.com/cfstras/wol"
+  url "https://github.com/cfstras/wol.git",
+      tag:      "v0.7.1",
+      revision: "6a318e45d41f683e5203ad7b7b8fc3e85de184a8"
   license "GPL-2.0-only"
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
-
-  patch :p1 do
-    url "https://raw.githubusercontent.com/cfstras/homebrew-wol/main/build-fix.patch"
-    sha256 "21d89b05705db671c091ac94aa2f53a26c058ff7b3ad30a2ab73954b13508a43"
-  end
-
-  patch :p2 do
-    url "https://raw.githubusercontent.com/cfstras/homebrew-wol/main/interface-select.patch"
-    sha256 "e8b6205f8afb5d3f9d70ded2f8af13a04c6294fc20a547eb5c522bbc2d0cb7f9"
-  end
 
   def install
     system "autoreconf", "-fiv"
