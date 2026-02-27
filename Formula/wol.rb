@@ -30,7 +30,9 @@ class Wol < Formula
       "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 0",
       "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 1",
     )
-    config_h.gsub!(/^#define rpl_.*\n/, "")
+    # Arch's PKGBUILD drops any gnulib "replacement" mappings (e.g. "#define malloc rpl_malloc").
+    # On macOS these can cause link errors if the replacement symbols are not built.
+    config_h = config_h.lines.reject { |line| line.include?("rpl_") }.join
     File.write("config.h", config_h)
 
     ENV.append_to_cflags "-DSTDC_HEADERS=1"
@@ -64,3 +66,19 @@ diff --git a/lib/realloc.c b/lib/realloc.c
  
  /* Change the size of an allocated block of memory P to N bytes,
   with error checking.  If N is zero, change it to 1.  If P is NULL,
+
+diff --git a/lib/getline.h b/lib/getline.h
+--- a/lib/getline.h
++++ b/lib/getline.h
+@@ -25,12 +25,12 @@
+ 
+ # include <stdio.h>
+ 
+-# if __GLIBC__ < 2
++# if defined(__GLIBC__) && (__GLIBC__ < 2)
+ int
+ getline PARAMS ((char **_lineptr, size_t *_n, FILE *_stream));
+ 
+ int
+ getdelim PARAMS ((char **_lineptr, size_t *_n, int _delimiter, FILE *_stream));
+ # endif
