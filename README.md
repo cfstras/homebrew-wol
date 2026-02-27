@@ -21,7 +21,7 @@ git init
 git add .
 git commit -m "Initial tap"
 
-brew tap local/wol-brew /Users/claus/src/wol-brew
+brew tap https://github.com/cfstras/wol-brew
 brew install wol
 ```
 
