@@ -1,16 +1,21 @@
---- .tmp/wol-0.7.1/include/net.h	2004-02-05 19:20:07
-+++ upstream/wol-0.7.1/include/net.h	2026-02-27 12:10:16
+
+diff --git a/include/net.h b/include/net.h
+--- a/include/net.h
++++ b/include/net.h
 @@ -28,7 +28,7 @@
  #include <sys/types.h>
- 
- 
+
+
 -int udp_open (void);
 +int udp_open (const char *interface_name);
- 
+
  int tcp_open (const char *ip_str, unsigned int port);
- 
---- .tmp/wol-0.7.1/src/net.c	2004-04-20 21:51:18
-+++ upstream/wol-0.7.1/src/net.c	2026-02-27 12:10:16
+
+ int net_close (int socket);
+
+diff --git a/src/net.c b/src/net.c
+--- a/src/net.c
++++ b/src/net.c
 @@ -35,6 +35,8 @@
  #include <netdb.h>
  #include <sys/types.h>
@@ -19,17 +24,18 @@
 +#include <net/if.h>
  #include <netinet/in.h>
  #include <arpa/inet.h>
+@@ -60,6 +62,115 @@
  
-@@ -60,7 +62,115 @@
+   return 0;
  }
- 
- 
++
++
 +static int
 +net_ifaddr4 (const char *ifname, struct in_addr *addr)
 +{
 +  struct ifaddrs *ifaddr;
 +  struct ifaddrs *ifa;
- 
++
 +  if (ifname == NULL || addr == NULL)
 +    {
 +      errno = EINVAL;
@@ -130,56 +136,47 @@
 +
 +  return 0;
 +}
-+
-+
-+
- int
- net_close (int socket)
- {
-@@ -76,7 +186,7 @@
- 
- 
- int
+@@ -79,7 +190,7 @@
 -udp_open (void)
 +udp_open (const char *interface_name)
  {
    int optval;
    int sockfd;
-@@ -97,6 +207,13 @@
+@@ -99,6 +210,14 @@
        return -1;
      }
- 
++
 +  if (net_configure_udp_interface (sockfd, interface_name) != 0)
 +    {
 +      error (0, errno, _("Cannot use interface '%s'"), interface_name);
 +      close (sockfd);
 +      return -1;
 +    }
-+
+ 
    return sockfd;
  }
- 
---- .tmp/wol-0.7.1/src/wol.c	2004-04-18 13:42:11
-+++ upstream/wol-0.7.1/src/wol.c	2026-02-27 12:10:16
+
+diff --git a/src/wol.c b/src/wol.c
+--- a/src/wol.c
++++ b/src/wol.c
 @@ -56,6 +56,9 @@
  /* IP Address or hostname magic packet is addressed to */
  static char *host_str = DEFAULT_IPADDR;
- 
+
 +/* outgoing interface name (or local IPv4 address) */
 +static char *interface_str = NULL;
 +
  /* filename with mac addresses */
  static char *pathname = NULL;
- 
 @@ -103,6 +106,7 @@
- -w, --wait=NUM      wait NUM millisecs after sending\n\
- -h, --host=HOST     broadcast to this IP address or hostname\n\
  -i, --ipaddr=HOST   same as --host\n\
 +-I, --interface=IF  send packets via interface IF\n\
  -p, --port=NUM      broadcast to this UDP port\n\
  -f, --file=FILE     read addresses from file FILE (\"-\" reads from stdin)\n\
      --passwd[=PASS] send SecureON password PASS (if no PASS is given, you\n\
-@@ -144,7 +148,7 @@
+@@ -159,13 +163,14 @@
+ parse_args (int argc, char *argv[])
+ {
    int c;
    int option_index;
    int password_set = 0;
@@ -188,7 +185,8 @@
    static struct option long_options[] = 
      {
        { "help", no_argument, NULL, 'H' },
-@@ -153,6 +157,7 @@
+       { "version", no_argument, NULL, 'V' },
+       { "verbose", no_argument, NULL, 'v' },
        { "wait", required_argument, NULL, 'w' },
        { "host", required_argument, NULL, 'h' },
        { "ipaddr", required_argument, NULL, 'i' },
@@ -196,20 +194,15 @@
        { "port", required_argument, NULL, 'p' },
        { "file", required_argument, NULL, 'f' },
        { "passwd", optional_argument, NULL, 'P' },
-@@ -209,7 +214,11 @@
+@@ -213,6 +218,11 @@
+ 	case 'i':
  	  host_str = optarg;
  	  break;
- 
-+  case 'I':
-+    interface_str = optarg;
-+    break;
- 
 +
- 	case 'p':
- 	  if ((sscanf (optarg, "%5u", &port) != 1) ||
- 	      port > 65535 || port == 0)
-@@ -358,7 +367,7 @@
- 
++	case 'I':
++	  interface_str = optarg;
++	  break;
+@@ -358,7 +368,7 @@
    if (!proxy_mode)
      {
 -      sockfd = udp_open ();
@@ -217,3 +210,5 @@
      }
    else
      {
+       sockfd = tcp_open (host_str, port);
+     }

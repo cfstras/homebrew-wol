@@ -9,7 +9,15 @@ class Wol < Formula
   depends_on "automake" => :build
   depends_on "libtool" => :build
 
-  patch :p1, :DATA
+  patch :p1 do
+    url "https://raw.githubusercontent.com/cfstras/homebrew-wol/main/build-fix.patch"
+    sha256 "21d89b05705db671c091ac94aa2f53a26c058ff7b3ad30a2ab73954b13508a43"
+  end
+
+  patch :p2 do
+    url "https://raw.githubusercontent.com/cfstras/homebrew-wol/main/interface-select.patch"
+    sha256 "e8b6205f8afb5d3f9d70ded2f8af13a04c6294fc20a547eb5c522bbc2d0cb7f9"
+  end
 
   def install
     system "autoreconf", "-fiv"
@@ -42,43 +50,6 @@ class Wol < Formula
   end
 
   test do
-    # wol prints usage/help and exits successfully for -h on most builds.
-    system bin/"wol", "-h"
+    system bin/"wol", "--help"
   end
 end
-
-__END__
-diff --git a/lib/realloc.c b/lib/realloc.c
---- a/lib/realloc.c
-+++ b/lib/realloc.c
-@@ -24,8 +24,12 @@
- 
- #include <sys/types.h>
- 
--char *malloc ();
--char *realloc ();
-+#if STDC_HEADERS
-+# include <stdlib.h>
-+#else
-+void *malloc ();
-+void *realloc ();
-+#endif
- 
- /* Change the size of an allocated block of memory P to N bytes,
-  with error checking.  If N is zero, change it to 1.  If P is NULL,
-
-diff --git a/lib/getline.h b/lib/getline.h
---- a/lib/getline.h
-+++ b/lib/getline.h
-@@ -25,12 +25,12 @@
- 
- # include <stdio.h>
- 
--# if __GLIBC__ < 2
-+# if defined(__GLIBC__) && (__GLIBC__ < 2)
- int
- getline PARAMS ((char **_lineptr, size_t *_n, FILE *_stream));
- 
- int
- getdelim PARAMS ((char **_lineptr, size_t *_n, int _delimiter, FILE *_stream));
- # endif
