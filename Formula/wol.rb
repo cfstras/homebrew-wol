@@ -20,31 +20,18 @@ class Wol < Formula
            "--mandir=#{man}"
 
     # Mirror the config.h adjustments from the Arch Linux PKGBUILD.
-    inreplace "config.h" do |s|
-      begin
-        s.gsub! "HAVE_ETHER_HOSTTON 0", "HAVE_ETHER_HOSTTON 1"
-      rescue Utils::InreplaceError
-        nil
-      end
-
-      begin
-        s.gsub! "HAVE_STRUCT_ETHER_ADDR 0", "HAVE_STRUCT_ETHER_ADDR 1"
-      rescue Utils::InreplaceError
-        nil
-      end
-
-      begin
-        s.gsub! "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 0", "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 1"
-      rescue Utils::InreplaceError
-        nil
-      end
-
-      begin
-        s.gsub!(/^#define rpl_.*\n/, "")
-      rescue Utils::InreplaceError
-        nil
-      end
-    end
+    # Homebrew's `inreplace` helper is intentionally strict (it errors if a
+    # replacement doesn't match). On macOS, some of these lines may simply not
+    # exist, so do a best-effort edit instead.
+    config_h = File.read("config.h")
+    config_h.gsub!("HAVE_ETHER_HOSTTON 0", "HAVE_ETHER_HOSTTON 1")
+    config_h.gsub!("HAVE_STRUCT_ETHER_ADDR 0", "HAVE_STRUCT_ETHER_ADDR 1")
+    config_h.gsub!(
+      "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 0",
+      "HAVE_STRUCT_ETHER_ADDR_ETHER_ADDR_OCTET 1",
+    )
+    config_h.gsub!(/^#define rpl_.*\n/, "")
+    File.write("config.h", config_h)
 
     ENV.append_to_cflags "-DSTDC_HEADERS=1"
 
